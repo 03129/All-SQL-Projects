@@ -1,1 +1,1 @@
-# Data-Cleaning-in-SQL
+# All SQL Projects
