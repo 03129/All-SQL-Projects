@@ -1,0 +1,235 @@
+1. Write a query that prints the top three movies by box office collection?
+
+solution 1 (i) -- 
+select moviename from movies
+order by collection desc
+limit 3;
+
+
+1 - (ii)
+ select moviename,sum(collection) as total_sum
+From movies
+Group by moviename
+Order by total_sum desc
+Limit 3
+
+
+2.Can you write a query to determine if any two actors share the same second name?
+
+solution(i) --
+select *
+From Actors A1
+Join Actors A2
+On A1.first_name <> A2.first_name and A1.second_name = A2.second_name
+
+
+(ii)
+
+select * 
+from actors a1
+join actors a2
+on a1.id <> a2.id and a1.second_name = a2.second_name
+
+
+
+3. Write a query to count the number of actors who share the same second name. Print the second name along with the count.
+
+solution(i)--
+   with table1 as(
+Select a1.id,a1.second_name
+From Actors a1
+Join Actors a2
+On a1.id <> a2.id  and a1.second_name = a2.second_name
+)
+
+Select count(id), second_name
+From table1
+
+(ii)
+from actors a, actors b
+join on a.second_name=b.second_name
+group by second_name;
+
+(iii)
+select second_name, count(*) from actors
+group by second_name having count(*)>1
+
+
+4. Write a query to display all those actors who have acted in at least one movie. 
+
+solution(i)--
+select count(m.id) as movies_count,a.first_name
+From  Actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.movieid
+Group by a.first_name
+Having count(m.id) >= 1
+
+
+5. Write a query to display all those actors who have acted in 2 or more movies
+
+solution(i)--
+select count(m.id) as movies_count,a.first_name
+From  Actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.movieid
+Group by a.first_name
+Having count(m.id) >= 2
+
+(ii)
+select first_name from actors where id in(
+select id from actors a1 inner join moviecast c1
+where a1.id=c1.actorid
+group by actorid having count(*)>=2);
+
+
+6. Find the cast of movie Blade Runner movie without using joins
+
+solution(i)--
+select concat(first_name," ",second_name) as cast_of_blade_runner from actors 
+where id in ( select actorid from moviecast where movieid = 
+(select id from movies where moviename = 'blade runner'))
+
+
+7. Print a list of movies and the actor(s) who participated in each movie ordered by movie name.
+
+solution(i)--
+select concat(a.first_name," ",a.second_name) as total_name , m.moviename
+From  Actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.movieid
+order by m.moviename
+
+8. Print the count of actors in each movie.
+
+solution(i)--
+
+ select count(a.id) as count_of_actors, m.moviename
+From actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.actorid
+Group by m.moviename
+
+
+9. Find all those actors who have not worked with producer Danny Boyle.
+
+solution(i)--
+select distinct concat(a.first_name," ",a.second_name) as total_name 
+From actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.actorid
+where m.producer <> "Danny Boyle";
+
+(ii)--
+select id,actors.first_name from actors where
+id in(select moviecast.actorid from moviecast
+inner join movies on moviecast.movieid=movies.id 
+where producer!='Danny Boyle');
+
+
+10. Find those movies, whose cast latest activity on social media occurred between the span of 5 days before and 5 days after the release date.
+
+solution(i)--
+select concat(a.first_name," ",a.second_name) as total_name
+from actors a 
+join digitalassets d
+on a.id = d.actorid
+ where date_add(d.last_updated_on,interval 5 day) 
+ between date_add(d.last_updated_on,interval -5 day)
+
+
+
+11. Find the total, average, minimum and maximum of the production budget and revenue earned from the Movies table and append the summary data to the top of the table.
+
+solution(i)--
+select 'total' as name, sum(budget) as budget_in_millions,sum(collection) as collection_in_millions 
+from movies
+union
+select 'average' as name, avg(budget) as budget_in_millions,sum(collection) as collection_in_millions 
+from movies
+union
+select 'maximum' as name , max(budget) as budget_in_millions,sum(collection) as collection_in_millions 
+from movies
+union
+select 'minimum' as name , min(budget) as budget_in_millions,sum(collection) as collection_in_millions 
+from movies
+union
+select moviename , budget as budget_in_millions,collection as collection_in_millions
+from movies
+
+
+
+12.  Populate a table DigitalActivityTrack with the last digital activity of each actor along with the asset type on which the activity occurred.
+
+solution(i)--
+
+select distinct concat(a.first_name," ",a.second_name) as total_name,d.asset,max(d.last_updated_on) as last_updated_at
+from actors a 
+join digitalassets d
+on a.id = d.actorid
+group by total_name
+
+
+
+13. Find the actor with the third lowest Net Worth in Millions without using the LIMIT clause
+solution(i)--
+
+with table1 as (
+select distinct concat(first_name," ",second_name) as total_name,networth,
+dense_rank() over(order by networth desc) as ran
+from actors
+)
+
+select total_name, networth
+from table1
+where ran = 3
+
+
+14. Find the name of those actors who had more than 2 movies released before they turned 35
+solution(i)--
+
+with table1 as (
+select extract(year from curdate()) - extract(year from a.dob) as age ,count(m.moviename) as movie_count,a.first_name
+From actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.actorid
+group by a.first_name
+)
+
+select first_name 
+from table1
+where age < 35 and movie_count > 2
+
+
+
+15. Name of the actors who have given more than 1 hit (collections surpass budget by more than 40%) and they are still not very active on digital media (last activity was more than 5 days ago).
+solution--
+
+
+with table1 as (
+select  m.collection,m.budget * (1+40/100) as surpass, concat(a.first_name," ",a.second_name) as total_name, 
+datediff(curdate(),d.last_updated_on) as latest
+From actors a
+Join moviecast c
+On a.id = c.actorid
+Join movies m
+On m.id = c.actorid
+join digitalassets d
+on a.id = d.actorid
+)
+
+select distinct total_name from table1
+where collection > surpass and latest > 5
+

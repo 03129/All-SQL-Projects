@@ -1,0 +1,146 @@
+16. Find the name of those movies where more than 2 actors worked - return the name of the movie only if it was a hit too.
+
+
+Solution--
+
+with table1 as (
+select  m.moviename,m.collection,m.budget * (1+40/100) as surpass,  -- calculate hit movie using 40% criteria ( 40% more than budget)
+ count(a.id) as total_actors
+From actors a
+Join moviecast c                                                     -- join actors table with moviecast so that we can combine actors table with movie table 
+					                                        -- because there is only way we connect movie table with actor table
+On a.id = c.actorid
+Join movies m
+On m.id = c.movieid    --   same for movie table
+group by m.moviename    
+)
+
+select moviename from table1
+where collection > surpass and total_actors > 2;                        -- we want that movies which is hit and where actors are more than 2
+
+
+
+17.Old actor (age more than 50) who is still the most active on digital realm/domain
+
+Solution --
+
+with table1 as (
+select extract(year from curdate()) - extract(year from a.dob) as age ,     -- find age here using current date to their dob
+concat(a.first_name," ",a.second_name) as total_name,
+datediff(curdate(),d.last_updated_on) as latest                             --  use datediff function to find latest date which is mostly active
+From actors a
+join digitalassets d
+on a.id = d.actorid                                                         -- I join actor table to assets table so that we can fetch dob of actor
+
+)
+
+select total_name from table1                                                --  here I find latest one actor who is recently active and age > 50
+where age > 50
+order by latest
+limit 1 
+
+
+
+18.You are asked to project data in a way that one can clearly see how frequently an actor’s movies are released. Write suitable query for same.
+
+Solution --
+
+ select concat(a.first_name," ",a.second_name) as total_name,m.moviename,m.release_date,a.first_name,
+ lead(release_date,1) over (partition by a.first_name order by release_date ) as next_date                   -- I used lead function here so that it can give next date
+ From  Actors a
+Join moviecast c
+On a.id = c.actorid                                                                                          -- I join here three tables so that I used columns name acc to criteria
+Join movies m
+On m.id = c.movieid                                                                                        
+
+
+
+19.In want to see data in such a way that I should just have actor’s name and his/her smash hit movie in the projection. Write a query for same.
+
+Solution--
+
+with table1 as (
+ select m.budget, m.moviename,m.collection,m.budget * (1+40/100) as surpass,  -- I calculate hit movie by using
+                                                                              -- 40% criteria
+ concat(a.first_name," ",a.second_name) as total_name
+From actors a
+Join moviecast c
+On a.id = c.actorid  -- join three tables here
+Join movies m
+On m.id = c.movieid
+
+ ),
+ 
+  table2 as (
+ select *,(collection-budget) as total_earn from table1                      -- in this table I calculate the diff and movie which gives us benefit
+ where collection > surpass
+ ),
+ 
+ table3 as (
+ select moviename,total_name,total_earn,
+ max(total_earn) over (partition by total_name) as smash_hit                 -- I calucalte here movies who earn maximum by actor 
+ from table2
+ )
+ 
+ 
+ select  moviename,total_name
+                                                                    
+ from table3 where smash_hit = total_earn                                   -- I take all those actors which earn maximum earn movie vise
+ 
+ 
+
+
+20.Name the producer who has given most hits. 
+
+Solution--
+
+with table1 as (
+ select  id,producer, collection, budget * (1+40/100) as surpass             -- calculate 40% criteria more than budget to find hit movies
+ from movies
+ ),
+ 
+ table2 as (
+ select * from table1
+ where collection > surpass                                                  -- calculate movies which is hit
+ ),
+ 
+ table3 as (
+ select producer,count(id) as most_hits                                      -- calculate count of movies per producer as hit movies
+ from table2
+ group by producer
+ )
+ 
+ select producer from table3
+ where most_hits = (select max(most_hits) from table3)                        -- finally calculate producer which gives maximum hit
+ 
+ 
+
+
+21. Industry wants to put its stake on most successful actor producer combination (if there is any). Is there any actor producer combination who has always given hits?
+
+Solution--
+
+ with table1 as (
+select  m.producer,m.collection,m.budget * (1+40/100) as surpass,                     -- calculate hit movies 
+ concat(a.first_name," ",a.second_name) as total_name
+From actors a
+Join moviecast c
+On a.id = c.actorid  -- join three tables here
+Join movies m
+On m.id = c.movieid
+ ),
+ 
+ table2 as (
+ select *,
+ case when collection > surpass then 'hit'                                         -- divide in two buckets hit and flop
+ when surpass > collection then 'flop'
+ end as hit_flop
+ from table1
+ 
+ )
+ -- select * from table2
+ 
+ select distinct producer,total_name                                            -- output that columns which only produce and actor name combination where only hit
+ from table2                                                                     -- movies are present
+ where hit_flop = "hit"
+

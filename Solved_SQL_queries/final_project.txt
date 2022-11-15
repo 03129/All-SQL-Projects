@@ -1,0 +1,211 @@
+-- 1.Find department details under postal code 98199.
+select d.* from departments d
+ join locations l
+on d.location_id = l.location_id
+where l.pstal_code = "98199"
+
+-- 2.Find employee name, email and phone number where salary is more then 10000.
+select concat(first_name," ",last_name) as total_name,email,phone_number
+from employees
+where salary > 10000
+
+-- 3.Find employee details who belongs to marketing department and has salary less then or equal to 6000.
+
+select e.*
+from employees e
+left join departments d
+on e.department_id = d.department_id
+where e.salary <= 6000 and d.department_name = "Marketing"
+
+-- 4.Find employees details where commission pct is available
+
+select *
+from employees
+where commission_pct is not null
+
+-- 5.List down employee name in ascending order.
+
+select first_name,last_name
+from employees
+order by first_name,last_name
+
+
+-- 6.Find locations of UK country in ascending order of postal code.
+
+select l.*
+from countries c
+join locations l
+on c.country_id = l.country_id
+where c.country_name = "United kingdom"
+order by postal_code
+
+-- 7.Find all the locations and arrange country in ascending and city in descending order.
+with total_country as (
+select  c.country_name,l.city
+from countries c
+join locations l
+on c.country_id = l.country_id
+union
+select c.country_name,nfl.city
+from countries c
+join non_functional_locations nfl
+on c.country_id = nfl.country_id
+)
+select * from total_country
+order by country_name,city desc
+
+-- 8.Find employees who work as President, Administration Vice President and Administration Assistant.
+
+select concat(first_name," ",last_name) as total_name,j.job_title
+from employees e
+join jobs j
+on e.job_id = j.job_id
+where job_title in ("President", "Administration Vice President", "Administration Assistant")
+
+-- 9.Find employees who does not work as Finance Manager, Accountant and Shipping Clerk.
+
+select concat(first_name," ",last_name) as total_name,j.job_title
+from employees e
+join jobs j
+on e.job_id = j.job_id
+where job_title not in ("Finance Manager", "Accountant" , "Shipping Clerk")
+
+-- 10.Find all the employees whose job id does not starts with SA
+
+select concat(first_name," ",last_name) as total_name,job_id
+from employees
+where job_id not like 'SA%';
+
+-- 11.Find all the employees whose job id neither starts with SA or SH
+
+select concat(first_name," ",last_name) as total_name,job_id
+from employees
+where job_id not like 'SA%' or 'SH%';
+
+-- 12. Remove the Employee ID 207 from Employee Table
+
+delete from employees where employee_id = "207"
+
+--13.14.Create backup table of employee( CREATE Table ....AS  command)
+
+CREATE TABLE command
+   ( employee_id int primary key
+   , first_name VARCHAR(20)
+   , last_name VARCHAR(25) not null
+   , email VARCHAR(25) not null unique
+   , phone_number VARCHAR(20)
+   , hire_date DATE not null
+   , job_id VARCHAR(10) not null
+   , salary decimal(8,2)
+   , commission_pct decimal(2,2)
+   , manager_id int
+   , department_id int
+   ) ;
+
+
+-- 14 Insert all the records of employee table into backup table
+
+
+CREATE TABLE backup_table
+   ( employee_id int primary key
+   , first_name VARCHAR(20)
+   , last_name VARCHAR(25) not null
+   , email VARCHAR(25) not null unique
+   , phone_number VARCHAR(20)
+   , hire_date DATE not null
+   , job_id VARCHAR(10) not null
+   , salary decimal(8,2)
+   , commission_pct decimal(2,2)
+   , manager_id int
+   , department_id int
+   ) ;
+
+
+-- 16.Fetch department details only for those employees whose employee id is greater than 150
+ 
+select d.*
+ from employees e
+ join departments d
+ on e.department_id = d.department_id
+ where employee_id > 150
+
+
+-- 17.List down all the departments along with employees working under it
+
+ select e.first_name,e.last_name,d.department_name
+ from employees e
+ join departments d
+ on e.department_id = d.department_id
+
+18.Display all the employee and department records along with missing data.
+ 
+select e.*,d.*
+ from employees e
+ full outer join departments d
+ on e.department_id = d.department_id
+
+19.Display employee details along with manager details
+ 
+select e.first_name,e.last_name,e.first_name as manager_name
+ from employees e
+ join departments d
+ on e.manager_id = d.manager_id
+
+
+
+20.Please provide combined view of city and postal code from both location and non-functional-location tables
+ 
+select city,postal_code
+ from locations
+ union
+ select city,postal_code
+ from non_functional_locations
+
+
+21.Find citys which are there in locations but not in non_functional_locations.
+ 
+select l.city as location_city,nfl.city as non_functional_locations_city
+ from locations l
+ left join non_functional_locations nfl
+ on l.city = nfl.city
+
+
+22.Find citys and postal_codes combination which are there in locations but not in non_functional_locations.
+
+
+ select l.city as location_city,l.postal_code as location_code,
+ nfl.city as non_functional_locations_city,nfl.postal_code as non_functional_locations_code
+ from locations l
+ left join non_functional_locations nfl
+ on l.city = nfl.city
+
+
+23.Find citys which are present in both locations and non_functional_locations.
+
+ with combine_table_of_location_non_functional_locations as(
+ select l.city as location_city,nfl.city as non_functional_locations_city
+ from locations l
+ left join non_functional_locations nfl
+ on l.city = nfl.city
+ )
+ 
+ select location_city, non_functional_locations_city
+ from combine_table_of_location_non_functional_locations
+ where location_city =  non_functional_locations_city
+
+
+24.Fetch employee name,emai,dept,city,job title,manager'r name and country name
+
+ select e.first_name,e.last_name,e.email,d.department_name,j.job_title,e.first_name as manager_name,c.country_name
+ from employees e
+ join departments d
+ on e.manager_id = d.manager_id and e.department_id = d.department_id
+ join jobs j
+ on e.job_id = j.job_id
+ join locations l 
+ on d.location_id = l.location_id
+ join countries c
+ on l.country_id = c.country_id
+
+
+

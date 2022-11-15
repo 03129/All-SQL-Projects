@@ -1,0 +1,46 @@
+/*** Multiple solutions is must wherever possible **/
+1.Find department details under postal code 98199.
+2.Find employee name, email and phone number where salary is more then 10000.
+3.Find employee details who belongs to marketing department and has salary less then or equal to 6000.
+4.Find employees details where commission pct is available
+5.List down employee name in ascending order.
+6.Find locations of UK country in ascending order of postal code.
+7.Find all the locations and arrange country in ascending and city in descending order.
+8.Find employees who work as President, Administration Vice President and Administration Assistant.
+9.Find employees who does not work as Finance Manager, Accountant and Shipping Clerk.
+10.Find all the employees whose job id does not starts with SA
+11.Find all the employees whose job id neither starts with SA or SH
+13.Remove the Employee ID 207 from Employee Table
+14.Create backup table of employee( CREATE Table ....AS  command)
+15.Insert all the records of employee table into backup table
+16.Fetch department details only for those employees whose employee id is greater than 150
+17.List down all the departments along with employees working under it
+18.Display all the employee and department records along with missing data.
+19.Display employee details along with manager details
+20.Please provide combined view of city and postal code from both location and non-functional-location tables.
+21.Find citys which are there in locations but not in non_functional_locations.
+22.Find citys and postal_codes combination which are there in locations but not in non_functional_locations.
+23.Find citys which are present in both locations and non_functional_locations.
+24.Fetch employee name,emai,dept,city,job title,manager'r name and country name
+25.Find all the departments (fetch dept id and dept name) where employees are tagged to it or the dept which have employees.
+26.Find employee details who belongs to marketing department and has salary less then or equal to 6000 and working as 'Marketing Representative'.
+27.List down only those employees along with department name and city where city is 'Roma' or 'Venice' or 'Southlake'.
+28.--List down all the employees along with department name and city where city is 'Roma' or 'Venice' or 'Southlake'.
+--NOTE: department and city both details should populate only if city belongs to 'Roma' or 'Venice' or 'Southlake'.
+29.List down the employees who are getting maximum salary.
+30.List down the employees who are getting more then average salary (CTE)
+31.Find maximum salary and number of employees who are working in IT department and hired after 29-Nov-1990.
+32.Show department wise number of employees, maximum salary and sum of salary
+33.Show number of employees working under each manager along with manager's employee id
+34.Show department wise maximum salary in an ordered way where max salary should be more then 10000
+35.Find department wise number of managers and number of records.
+36.Categorize employees based on hire date
+1. before 1990
+2. between 1990 to 1995
+3. between 1995 to 2000
+4. after 90s
+37.Find all the departments where the total salary of all employee in that department is more than the average of total salary of all employees in the database(CTE)
+38.Find Duplicate Location ID along with details
+39.Display city in a comma separated manner like Bern, Bombay etc (Use LISTAGG function) 
+40.Find all the employee details whose salary is not in job range for that specific job
+41.Department wise provide a rank to each employee based on salary
